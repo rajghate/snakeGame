@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Snake Game</title>
+  </head>
+  <link rel="stylesheet" href="css/master.css">
+  <body>
+    <div class="header">
+    </div>
+    <div class="gameboard">
+      <canvas id="board" width="500" height="500">
+      </canvas>
+    </div>
+
+  </body>
+  <script type="text/javascript">
+    document.addEventListener("keydown",changePath)
+    const foodimg = new Image();
+    foodimg.src = "virus.png"
+    const board = document.getElementById('board');
+    board_ctx = board.getContext("2d");
+    let dx=20,dy=0;
+    foodCords = [];
+    let snake = [
+      {x:200,y:200},
+      {x:220,y:200},
+      {x:240,y:200},
+      {x:260,y:200},
+      {x:280,y:200}
+    ];
+    function foodPoints(){
+      let max = 460/20 +1
+      let count = 0
+      while(count<10)
+        {
+          let foodx = Math.ceil(Math.random()*max)*20
+          if ( foodx === 0 || foodx >= 480)
+            continue;
+          let foody = Math.ceil(Math.random()*max)*20
+          if (foody === 0 || foody >=480)
+            continue;
+          let point = {x:foodx,y:foody}
+          if (foodCords.indexOf(point) === -1 && snake.indexOf(point) === -1 ) {
+            console.log(snake.indexOf(point));
+            foodCords.push(point);
+            count=count+1;
+          }
+        }
+
+    }
+    foodPoints();
+    main();
+    function drawFood(point) {
+      board_ctx.drawImage(foodimg,point.x,point.y);
+    }
+    function placeFood(){
+      foodCords.forEach(drawFood);
+    }
+
+    function createWallHorizontal(x,y){
+      for (var i = x; i < x+200; i=i+20)
+      {
+        board_ctx.fillRect(i,y,20,20);
+        board_ctx.strokeRect(i,y,20,20);
+        }
+    }
+
+    function createWallVertical(x,y){
+      for (var i = y; i < y+200; i=i+20)
+      {
+        board_ctx.fillRect(x,i,20,20);
+        board_ctx.strokeRect(x,i,20,20);
+        }
+    }
+    function buildWalls() {
+      board_ctx.fillStyle = "brown";
+      board_ctx.strokeStyle = "black";
+      createWallHorizontal(0,0);
+      createWallHorizontal(300,0);
+      createWallHorizontal(0,480);
+      createWallHorizontal(300,480);
+      createWallVertical(0,0);
+      createWallVertical(0,300);
+      createWallVertical(480,0);
+      createWallVertical(480,300);
+    }
+
+    function createBoard(){
+      board_ctx.fillStyle = "white";
+      board_ctx.strokeStyle= "black";
+      board_ctx.fillRect(0,0,board.width,board.height);
+      board_ctx.strokeRect(0,0,board.width,board.height);
+      buildWalls();
+      placeFood();
+    }
+
+    function drawSnakePart(part){
+      board_ctx.fillStyle = "purple";
+      board_ctx.strokeStyle= "black";
+      board_ctx.fillRect(part.x,part.y,20,20);
+      board_ctx.strokeRect(part.x,part.y,20,20);
+
+    }
+    function createSnake(){
+      snake.forEach(drawSnakePart);
+    }
+    function moveSnake(){
+      let newx = (snake[snake.length-1].x + dx) % board.width;
+      let newy = (snake[snake.length-1].y + dy) % board.height;
+      if(newx < 0)
+        newx = newx + board.width;
+      if(newy < 0)
+        newy = newy + board.height;
+      snake.push({x:newx,y:newy});
+      snake.shift();
+    }
+    function changePath(event){
+      const LEFT_KEY = 37;
+      const RIGHT_KEY = 39;
+      const UP_KEY = 38;
+      const DOWN_KEY = 40;
+      let up = dy === -20;
+      let down = dy === 20;
+      let left = dx === -20;
+      let right = dx === 20;
+      key = event.keyCode
+      if (key === UP_KEY && !down){
+        dy = -20;
+        dx = 0;
+      }
+      if (key === DOWN_KEY && !up){
+        dy = 20;
+        dx = 0;
+      }
+      if (key === RIGHT_KEY && !left){
+        dy = 0;
+        dx = 20;
+      }
+      if (key === LEFT_KEY && !right){
+        dy = 0;
+        dx = -20;
+      }
+      /*console.log(left)
+      console.log(right)
+      console.log(up)
+      console.log(down)*/
+
+    }
+
+    function main(){
+      createBoard();
+      createSnake();
+      moveSnake();
+    }
+
+    window.setInterval(main,100)
+
+
+  </script>
+</html>
